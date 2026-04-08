@@ -57,8 +57,8 @@ class _AdminOverviewPage extends ConsumerWidget {
     final app = ref.watch(appStateProvider);
 
     return ScreenContainer(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: ListView(
+        padding: EdgeInsets.zero,
         children: [
           SectionHeader(
             title: 'Ringkasan kelas',
@@ -91,6 +91,7 @@ class _AdminOverviewPage extends ConsumerWidget {
                 subtitle: 'Perlu persetujuan admin',
                 icon: Icons.hourglass_bottom_rounded,
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ],
@@ -138,7 +139,7 @@ class _ApprovalPage extends ConsumerWidget {
                   final user = pending[index];
                   return Card(
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

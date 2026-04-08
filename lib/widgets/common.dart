@@ -86,46 +86,50 @@ class MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              backgroundColor: colorScheme.primary.withValues(alpha: 0.12),
-              foregroundColor: colorScheme.primary,
-              child: Icon(icon),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
+      child: SizedBox.expand(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: colorScheme.primary.withValues(alpha: 0.12),
+                foregroundColor: colorScheme.primary,
+                child: Icon(icon, size: 18),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
-            ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                subtitle!,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.black54,
+                  const SizedBox(height: 2),
+                  Text(
+                    value,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.black54,
+                          ),
                     ),
+                ],
               ),
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -133,28 +137,24 @@ class MetricCard extends StatelessWidget {
 }
 
 class ResponsiveMetricGrid extends StatelessWidget {
-  const ResponsiveMetricGrid({
-    super.key,
-    required this.children,
-  });
-
   final List<Widget> children;
+
+  const ResponsiveMetricGrid({super.key, required this.children});
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isNarrow = constraints.maxWidth < 360;
-
-        return GridView.count(
-          crossAxisCount: isNarrow ? 1 : 2,
-          shrinkWrap: true,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: isNarrow ? 1.7 : 1.05,
-          physics: const NeverScrollableScrollPhysics(),
-          children: children,
-        );
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: children.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 1.2,
+      ),
+      itemBuilder: (context, index) {
+        return children[index];
       },
     );
   }
@@ -228,6 +228,90 @@ class StatusBadge extends StatelessWidget {
           color: color,
           fontWeight: FontWeight.w700,
           fontSize: 12,
+        ),
+      ),
+    );
+  }
+}
+
+class AttendanceDonutCard extends StatelessWidget {
+  const AttendanceDonutCard({
+    super.key,
+    required this.present,
+    required this.total,
+  });
+
+  final int present;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final ratio = total == 0 ? 0.0 : present / total;
+    final isComplete = ratio == 1.0;
+    final activeColor = isComplete ? Colors.green : colorScheme.primary;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 130,
+              width: 130,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox.expand(
+                    child: CircularProgressIndicator(
+                      value: ratio,
+                      strokeWidth: 11,
+                      strokeCap: StrokeCap.round,
+                      backgroundColor: Colors.grey.shade200,
+                      color: activeColor,
+                    ),
+                  ),
+                  RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '$present',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: activeColor,
+                              ),
+                        ),
+                        TextSpan(
+                          text: '/$total',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                color: Colors.black45,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'guru hadir',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.black54,
+                  ),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              isComplete
+                  ? 'Semua guru hadir hari ini'
+                  : 'Status akan reset otomatis setiap hari menjadi belum dicek.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.black45,
+                  ),
+            ),
+          ],
         ),
       ),
     );

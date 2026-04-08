@@ -21,7 +21,6 @@ class AttendancePage extends ConsumerWidget {
     app.ensureDailyAttendanceReset();
     final teachers = app.teachers;
     final presentCount = app.presentTeacherCount();
-    final ratio = teachers.isEmpty ? 0.0 : presentCount / teachers.length;
 
     return ScreenContainer(
       child: ListView(
@@ -31,45 +30,9 @@ class AttendancePage extends ConsumerWidget {
             subtitle: '$presentCount hadir dari ${teachers.length} guru',
           ),
           const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 130,
-                    width: 130,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        CircularProgressIndicator(
-                          value: ratio,
-                          strokeWidth: 11,
-                          backgroundColor: Colors.grey.shade200,
-                          color: ratio == 1 ? Colors.green : Theme.of(context).colorScheme.primary,
-                        ),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '$presentCount/${teachers.length}',
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-                            ),
-                            const SizedBox(height: 4),
-                            const Text('guru hadir'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Text(
-                    ratio == 1 ? 'Semua guru hadir hari ini' : 'Status akan reset otomatis setiap hari menjadi belum dicek.',
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
+          AttendanceDonutCard(
+            present: presentCount,
+            total: teachers.length,
           ),
           const SizedBox(height: 16),
           ...teachers.map((teacher) {
