@@ -178,6 +178,8 @@ class EmptyStateCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 36, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 12),
@@ -277,16 +279,20 @@ class AttendanceDonutCard extends StatelessWidget {
                       children: [
                         TextSpan(
                           text: '$present',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 color: activeColor,
                               ),
                         ),
                         TextSpan(
                           text: '/$total',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Colors.black45,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: Colors.black45,
+                                  ),
                         ),
                       ],
                     ),

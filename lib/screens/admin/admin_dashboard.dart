@@ -40,9 +40,12 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         selectedIndex: index,
         onDestinationSelected: (value) => setState(() => index = value),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.grid_view_rounded), label: 'Overview'),
-          NavigationDestination(icon: Icon(Icons.verified_user_outlined), label: 'Approval'),
-          NavigationDestination(icon: Icon(Icons.settings_outlined), label: 'Pengaturan'),
+          NavigationDestination(
+              icon: Icon(Icons.grid_view_rounded), label: 'Overview'),
+          NavigationDestination(
+              icon: Icon(Icons.verified_user_outlined), label: 'Approval'),
+          NavigationDestination(
+              icon: Icon(Icons.settings_outlined), label: 'Pengaturan'),
         ],
       ),
     );
@@ -120,13 +123,20 @@ class _ApprovalPage extends ConsumerWidget {
           if (pending.isEmpty)
             Expanded(
               child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 360),
-                  child: const EmptyStateCard(
-                    title: 'Tidak ada antrean approval',
-                    subtitle: 'Semua user baru sudah diproses.',
-                    icon: Icons.verified_user_outlined,
-                  ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final cardSize = constraints.maxWidth < 420
+                        ? constraints.maxWidth * 0.82
+                        : 320.0;
+                    return SizedBox.square(
+                      dimension: cardSize.clamp(220.0, 320.0),
+                      child: const EmptyStateCard(
+                        title: 'Tidak ada antrean approval',
+                        subtitle: 'Semua user baru sudah diproses.',
+                        icon: Icons.verified_user_outlined,
+                      ),
+                    );
+                  },
                 ),
               ),
             )
@@ -145,7 +155,10 @@ class _ApprovalPage extends ConsumerWidget {
                         children: [
                           Text(
                             user.name,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 4),
                           Text('${user.username} · ${user.email}'),
@@ -155,17 +168,23 @@ class _ApprovalPage extends ConsumerWidget {
                             runSpacing: 10,
                             children: [
                               FilledButton.tonalIcon(
-                                onPressed: () => ref.read(appStateProvider).approveUserAsStudent(user.id),
+                                onPressed: () => ref
+                                    .read(appStateProvider)
+                                    .approveUserAsStudent(user.id),
                                 icon: const Icon(Icons.school_outlined),
                                 label: const Text('Approve sebagai siswa'),
                               ),
                               FilledButton.icon(
-                                onPressed: () => ref.read(appStateProvider).approveUserAsTeacher(user.id),
+                                onPressed: () => ref
+                                    .read(appStateProvider)
+                                    .approveUserAsTeacher(user.id),
                                 icon: const Icon(Icons.badge_outlined),
                                 label: const Text('Approve sebagai guru'),
                               ),
                               OutlinedButton.icon(
-                                onPressed: () => ref.read(appStateProvider).rejectUser(user.id),
+                                onPressed: () => ref
+                                    .read(appStateProvider)
+                                    .rejectUser(user.id),
                                 icon: const Icon(Icons.delete_outline),
                                 label: const Text('Tolak'),
                               ),
