@@ -21,10 +21,12 @@ class AppState extends ChangeNotifier {
 
   List<AppUser> get users => List.unmodifiable(_users);
   List<TaskItem> get tasks => List.unmodifiable(_tasks);
-  Map<String, List<ScheduleSlot>> get schedule => _schedule.map((key, value) => MapEntry(key, List.unmodifiable(value)));
+  Map<String, List<ScheduleSlot>> get schedule =>
+      _schedule.map((key, value) => MapEntry(key, List.unmodifiable(value)));
   Map<String, AttendanceStatus> get attendance => Map.unmodifiable(_attendance);
 
-  static String _dateKey(DateTime date) => '${date.year}-${date.month}-${date.day}';
+  static String _dateKey(DateTime date) =>
+      '${date.year}-${date.month}-${date.day}';
 
   void ensureDailyAttendanceReset() {
     final today = _dateKey(DateTime.now());
@@ -37,13 +39,17 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<AppUser> get teachers => _users.where((u) => u.role == UserRole.teacher).toList();
-  List<AppUser> get students => _users.where((u) => u.role == UserRole.student).toList();
-  List<AppUser> get pendingUsers => _users.where((u) => u.role == UserRole.pending).toList();
+  List<AppUser> get teachers =>
+      _users.where((u) => u.role == UserRole.teacher).toList();
+  List<AppUser> get students =>
+      _users.where((u) => u.role == UserRole.student).toList();
+  List<AppUser> get pendingUsers =>
+      _users.where((u) => u.role == UserRole.pending).toList();
 
   AppUser? findUserByEmail(String email) {
     try {
-      return _users.firstWhere((u) => u.email.toLowerCase() == email.toLowerCase());
+      return _users
+          .firstWhere((u) => u.email.toLowerCase() == email.toLowerCase());
     } catch (_) {
       return null;
     }
@@ -149,7 +155,8 @@ class AppState extends ChangeNotifier {
   void toggleTask(String id) {
     final index = _tasks.indexWhere((t) => t.id == id);
     if (index == -1) return;
-    _tasks[index] = _tasks[index].copyWith(isCompleted: !_tasks[index].isCompleted);
+    _tasks[index] =
+        _tasks[index].copyWith(isCompleted: !_tasks[index].isCompleted);
     notifyListeners();
   }
 
@@ -158,7 +165,8 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<String> get weekdays => const ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+  List<String> get weekdays =>
+      const ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 
   void addScheduleEntry({
     required String day,
@@ -167,7 +175,23 @@ class AppState extends ChangeNotifier {
   }) {
     final slots = _schedule[day];
     if (slots == null || slotIndex >= slots.length) return;
-    final current = List<ScheduleEntry>.from(slots[slotIndex].entries)..add(entry);
+    final current = List<ScheduleEntry>.from(slots[slotIndex].entries)
+      ..add(entry);
+    slots[slotIndex] = slots[slotIndex].copyWith(entries: current);
+    notifyListeners();
+  }
+
+  void updateScheduleEntry({
+    required String day,
+    required int slotIndex,
+    required int entryIndex,
+    required ScheduleEntry entry,
+  }) {
+    final slots = _schedule[day];
+    if (slots == null || slotIndex >= slots.length) return;
+    final current = List<ScheduleEntry>.from(slots[slotIndex].entries);
+    if (entryIndex < 0 || entryIndex >= current.length) return;
+    current[entryIndex] = entry;
     slots[slotIndex] = slots[slotIndex].copyWith(entries: current);
     notifyListeners();
   }
@@ -195,7 +219,10 @@ class AppState extends ChangeNotifier {
     for (final slot in slots) {
       final start = _parseMinutes(slot.start);
       final end = _parseMinutes(slot.end);
-      if (currentMinutes >= start && currentMinutes < end && !slot.isBreak && slot.entries.isNotEmpty) {
+      if (currentMinutes >= start &&
+          currentMinutes < end &&
+          !slot.isBreak &&
+          slot.entries.isNotEmpty) {
         return slot.entries.first;
       }
     }
@@ -218,13 +245,18 @@ class AppState extends ChangeNotifier {
     final now = DateTime.now();
     final threshold = now.add(const Duration(days: 2));
     return _tasks.where((task) {
-      return !task.isCompleted && task.deadline.isAfter(now.subtract(const Duration(days: 1))) && task.deadline.isBefore(threshold);
+      return !task.isCompleted &&
+          task.deadline.isAfter(now.subtract(const Duration(days: 1))) &&
+          task.deadline.isBefore(threshold);
     }).toList();
   }
 
   int presentTeacherCount() {
     ensureDailyAttendanceReset();
-    return teachers.where((teacher) => _attendance[teacher.email] == AttendanceStatus.present).length;
+    return teachers
+        .where(
+            (teacher) => _attendance[teacher.email] == AttendanceStatus.present)
+        .length;
   }
 
   AttendanceStatus statusOfTeacher(String email) {
@@ -276,13 +308,15 @@ class AppState extends ChangeNotifier {
     final phases = List<SchoolPhase>.from(settings.phases);
     final index = phases.indexWhere((p) => p.id == id);
     if (index == -1) return;
-    phases[index] = phases[index].copyWith(label: label, start: start, end: end);
+    phases[index] =
+        phases[index].copyWith(label: label, start: start, end: end);
     settings = settings.copyWith(phases: phases);
     notifyListeners();
   }
 
   void deletePhase(String id) {
-    final phases = List<SchoolPhase>.from(settings.phases)..removeWhere((p) => p.id == id);
+    final phases = List<SchoolPhase>.from(settings.phases)
+      ..removeWhere((p) => p.id == id);
     settings = settings.copyWith(phases: phases);
     notifyListeners();
   }
@@ -314,11 +348,16 @@ class AppState extends ChangeNotifier {
       schoolName: 'SMA KelasKu',
       className: 'X IPA 1',
       phases: [
-        SchoolPhase(id: 'p1', label: 'Masuk Kelas', start: '08:00', end: '09:00'),
-        SchoolPhase(id: 'p2', label: 'Istirahat 1', start: '09:00', end: '09:30'),
-        SchoolPhase(id: 'p3', label: 'Masuk Kelas', start: '09:30', end: '11:30'),
-        SchoolPhase(id: 'p4', label: 'Istirahat 2', start: '11:30', end: '12:00'),
-        SchoolPhase(id: 'p5', label: 'Masuk Kelas', start: '12:00', end: '15:00'),
+        SchoolPhase(
+            id: 'p1', label: 'Masuk Kelas', start: '08:00', end: '09:00'),
+        SchoolPhase(
+            id: 'p2', label: 'Istirahat 1', start: '09:00', end: '09:30'),
+        SchoolPhase(
+            id: 'p3', label: 'Masuk Kelas', start: '09:30', end: '11:30'),
+        SchoolPhase(
+            id: 'p4', label: 'Istirahat 2', start: '11:30', end: '12:00'),
+        SchoolPhase(
+            id: 'p5', label: 'Masuk Kelas', start: '12:00', end: '15:00'),
       ],
     );
 
@@ -407,14 +446,20 @@ class AppState extends ChangeNotifier {
         start: '08:00',
         end: '08:30',
         entries: [
-          ScheduleEntry(subject: 'Matematika', teacherName: 'Pak Budi', teacherEmail: 'guru@kelasku.id'),
+          ScheduleEntry(
+              subject: 'Matematika',
+              teacherName: 'Pak Budi',
+              teacherEmail: 'guru@kelasku.id'),
         ],
       ),
       const ScheduleSlot(
         start: '08:30',
         end: '09:00',
         entries: [
-          ScheduleEntry(subject: 'Bahasa Indonesia', teacherName: 'Bu Siska', teacherEmail: 'siska@kelasku.id'),
+          ScheduleEntry(
+              subject: 'Bahasa Indonesia',
+              teacherName: 'Bu Siska',
+              teacherEmail: 'siska@kelasku.id'),
         ],
       ),
       const ScheduleSlot(start: '09:00', end: '09:30', isBreak: true),
@@ -422,29 +467,44 @@ class AppState extends ChangeNotifier {
         start: '09:30',
         end: '10:00',
         entries: [
-          ScheduleEntry(subject: 'Matematika', teacherName: 'Pak Budi', teacherEmail: 'guru@kelasku.id'),
-          ScheduleEntry(subject: 'Bahasa Indonesia', teacherName: 'Bu Siska', teacherEmail: 'siska@kelasku.id'),
+          ScheduleEntry(
+              subject: 'Matematika',
+              teacherName: 'Pak Budi',
+              teacherEmail: 'guru@kelasku.id'),
+          ScheduleEntry(
+              subject: 'Bahasa Indonesia',
+              teacherName: 'Bu Siska',
+              teacherEmail: 'siska@kelasku.id'),
         ],
       ),
       const ScheduleSlot(
         start: '10:00',
         end: '10:30',
         entries: [
-          ScheduleEntry(subject: 'Sejarah', teacherName: 'Pak Budi', teacherEmail: 'guru@kelasku.id'),
+          ScheduleEntry(
+              subject: 'Sejarah',
+              teacherName: 'Pak Budi',
+              teacherEmail: 'guru@kelasku.id'),
         ],
       ),
       const ScheduleSlot(
         start: '10:30',
         end: '11:00',
         entries: [
-          ScheduleEntry(subject: 'Biologi', teacherName: 'Bu Siska', teacherEmail: 'siska@kelasku.id'),
+          ScheduleEntry(
+              subject: 'Biologi',
+              teacherName: 'Bu Siska',
+              teacherEmail: 'siska@kelasku.id'),
         ],
       ),
       const ScheduleSlot(
         start: '11:00',
         end: '11:30',
         entries: [
-          ScheduleEntry(subject: 'Seni Budaya', teacherName: 'Pak Budi', teacherEmail: 'guru@kelasku.id'),
+          ScheduleEntry(
+              subject: 'Seni Budaya',
+              teacherName: 'Pak Budi',
+              teacherEmail: 'guru@kelasku.id'),
         ],
       ),
       const ScheduleSlot(start: '11:30', end: '12:00', isBreak: true),
@@ -452,42 +512,60 @@ class AppState extends ChangeNotifier {
         start: '12:00',
         end: '12:30',
         entries: [
-          ScheduleEntry(subject: 'Fisika', teacherName: 'Pak Budi', teacherEmail: 'guru@kelasku.id'),
+          ScheduleEntry(
+              subject: 'Fisika',
+              teacherName: 'Pak Budi',
+              teacherEmail: 'guru@kelasku.id'),
         ],
       ),
       const ScheduleSlot(
         start: '12:30',
         end: '13:00',
         entries: [
-          ScheduleEntry(subject: 'Bahasa Inggris', teacherName: 'Bu Siska', teacherEmail: 'siska@kelasku.id'),
+          ScheduleEntry(
+              subject: 'Bahasa Inggris',
+              teacherName: 'Bu Siska',
+              teacherEmail: 'siska@kelasku.id'),
         ],
       ),
       const ScheduleSlot(
         start: '13:00',
         end: '13:30',
         entries: [
-          ScheduleEntry(subject: 'Kimia', teacherName: 'Pak Budi', teacherEmail: 'guru@kelasku.id'),
+          ScheduleEntry(
+              subject: 'Kimia',
+              teacherName: 'Pak Budi',
+              teacherEmail: 'guru@kelasku.id'),
         ],
       ),
       const ScheduleSlot(
         start: '13:30',
         end: '14:00',
         entries: [
-          ScheduleEntry(subject: 'Geografi', teacherName: 'Bu Siska', teacherEmail: 'siska@kelasku.id'),
+          ScheduleEntry(
+              subject: 'Geografi',
+              teacherName: 'Bu Siska',
+              teacherEmail: 'siska@kelasku.id'),
         ],
       ),
       const ScheduleSlot(
         start: '14:00',
         end: '14:30',
         entries: [
-          ScheduleEntry(subject: 'PPKn', teacherName: 'Pak Budi', teacherEmail: 'guru@kelasku.id'),
+          ScheduleEntry(
+              subject: 'PPKn',
+              teacherName: 'Pak Budi',
+              teacherEmail: 'guru@kelasku.id'),
         ],
       ),
       const ScheduleSlot(
         start: '14:30',
         end: '15:00',
         entries: [
-          ScheduleEntry(subject: 'Informatika', teacherName: 'Bu Siska', teacherEmail: 'siska@kelasku.id'),
+          ScheduleEntry(
+              subject: 'Informatika',
+              teacherName: 'Bu Siska',
+              teacherEmail: 'siska@kelasku.id'),
         ],
       ),
     ];

@@ -33,8 +33,10 @@ class SchedulePage extends ConsumerWidget {
               padding: const EdgeInsets.only(bottom: 14),
               child: Card(
                 child: ExpansionTile(
-                  tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  title: Text(day, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  tilePadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  title: Text(day,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
                   subtitle: Text('${slots.length} slot'),
                   childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   children: [
@@ -46,18 +48,25 @@ class SchedulePage extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(18),
                           onTap: readOnly || slot.isBreak
                               ? null
-                              : () => _showAddEntryDialog(context, ref, day, index),
+                              : () =>
+                                  _showAddEntryDialog(context, ref, day, index),
                           child: Container(
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
                               color: slot.isBreak
                                   ? Colors.orange.withValues(alpha: 0.08)
-                                  : Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(18),
                               border: Border.all(
                                 color: slot.isBreak
                                     ? Colors.orange.withValues(alpha: 0.2)
-                                    : Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .primary
+                                        .withValues(alpha: 0.12),
                               ),
                             ),
                             child: Column(
@@ -65,12 +74,18 @@ class SchedulePage extends ConsumerWidget {
                               children: [
                                 Row(
                                   children: [
-                                    Icon(slot.isBreak ? Icons.free_breakfast_outlined : Icons.add_box_outlined),
+                                    Icon(slot.isBreak
+                                        ? Icons.free_breakfast_outlined
+                                        : Icons.add_box_outlined),
                                     const SizedBox(width: 10),
-                                    Text('${slot.start} - ${slot.end}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                                    Text('${slot.start} - ${slot.end}',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w700)),
                                     const Spacer(),
                                     if (slot.isBreak)
-                                      const StatusBadge(label: 'Istirahat', color: Colors.orange)
+                                      const StatusBadge(
+                                          label: 'Istirahat',
+                                          color: Colors.orange)
                                     else if (!readOnly)
                                       const Icon(Icons.add_circle_outline),
                                   ],
@@ -78,25 +93,32 @@ class SchedulePage extends ConsumerWidget {
                                 const SizedBox(height: 10),
                                 if (slot.entries.isEmpty)
                                   Text(
-                                    slot.isBreak ? 'Waktu istirahat' : 'Belum ada mapel',
-                                    style: const TextStyle(color: Colors.black54),
+                                    slot.isBreak
+                                        ? 'Waktu istirahat'
+                                        : 'Belum ada mapel',
+                                    style:
+                                        const TextStyle(color: Colors.black54),
                                   )
                                 else
                                   Wrap(
                                     spacing: 8,
                                     runSpacing: 8,
-                                    children: List.generate(slot.entries.length, (entryIndex) {
+                                    children: List.generate(slot.entries.length,
+                                        (entryIndex) {
                                       final entry = slot.entries[entryIndex];
                                       return GestureDetector(
                                         onLongPress: readOnly
                                             ? null
-                                            : () => ref.read(appStateProvider).deleteScheduleEntry(
+                                            : () => ref
+                                                .read(appStateProvider)
+                                                .deleteScheduleEntry(
                                                   day: day,
                                                   slotIndex: index,
                                                   entryIndex: entryIndex,
                                                 ),
                                         child: Chip(
-                                          label: Text('${entry.subject} · ${entry.teacherName}'),
+                                          label: Text(
+                                              '${entry.subject} · ${entry.teacherName}'),
                                         ),
                                       );
                                     }),
@@ -117,10 +139,17 @@ class SchedulePage extends ConsumerWidget {
     );
   }
 
-  Future<void> _showAddEntryDialog(BuildContext context, WidgetRef ref, String day, int slotIndex) async {
+  Future<void> _showAddEntryDialog(
+      BuildContext context, WidgetRef ref, String day, int slotIndex) async {
     final app = ref.read(appStateProvider);
-    final subjectController = TextEditingController();
-    String? teacherEmail = app.teachers.isNotEmpty ? app.teachers.first.email : null;
+    final currentEntries =
+        app.schedule[day]?[slotIndex].entries ?? const <ScheduleEntry>[];
+    final currentEntry =
+        currentEntries.isNotEmpty ? currentEntries.first : null;
+    final subjectController =
+        TextEditingController(text: currentEntry?.subject ?? '');
+    String? teacherEmail = currentEntry?.teacherEmail ??
+        (app.teachers.isNotEmpty ? app.teachers.first.email : null);
 
     await showDialog<void>(
       context: context,
@@ -135,36 +164,70 @@ class SchedulePage extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
+              isExpanded: true,
               initialValue: teacherEmail,
               items: app.teachers
                   .map(
                     (teacher) => DropdownMenuItem(
                       value: teacher.email,
-                      child: Text('${teacher.displayTeacherName} · ${teacher.subject ?? '-'}'),
+                      child: Text(
+                        '${teacher.displayTeacherName} · ${teacher.subject ?? '-'}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   )
                   .toList(),
               onChanged: (value) => teacherEmail = value,
               decoration: const InputDecoration(labelText: 'Guru mengajar'),
+              selectedItemBuilder: (context) => app.teachers
+                  .map(
+                    (teacher) => Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${teacher.displayTeacherName} · ${teacher.subject ?? '-'}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal')),
           FilledButton(
             onPressed: () {
-              if (subjectController.text.isEmpty || teacherEmail == null) return;
+              if (subjectController.text.trim().isEmpty || teacherEmail == null) {
+                return;
+              }
               final teacher = app.findUserByEmail(teacherEmail!);
               if (teacher == null) return;
-              app.addScheduleEntry(
-                day: day,
-                slotIndex: slotIndex,
-                entry: ScheduleEntry(
-                  subject: subjectController.text,
-                  teacherName: teacher.displayTeacherName,
-                  teacherEmail: teacher.email,
-                ),
+
+              final entry = ScheduleEntry(
+                subject: subjectController.text.trim(),
+                teacherName: teacher.displayTeacherName,
+                teacherEmail: teacher.email,
               );
+
+              if (currentEntry == null) {
+                app.addScheduleEntry(
+                  day: day,
+                  slotIndex: slotIndex,
+                  entry: entry,
+                );
+              } else {
+                app.updateScheduleEntry(
+                  day: day,
+                  slotIndex: slotIndex,
+                  entryIndex: 0,
+                  entry: entry,
+                );
+              }
+
               Navigator.pop(context);
             },
             child: const Text('Simpan'),
