@@ -9,8 +9,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
+  # State Management
   flutter_riverpod: ^2.5.1
+  
+  # UI
   google_fonts: ^6.2.1
+  
+  # Firebase Core (WAJIB - harus pertama)
+  firebase_core: ^3.15.2
+  
+  # Firebase Authentication
+  firebase_auth: ^5.3.1
+  
+  # Cloud Firestore (database utama)
+  cloud_firestore: ^5.4.4
+  
+  # Firebase Storage (upload foto/file)
+  firebase_storage: ^12.3.2
 
 dev_dependencies:
   flutter_lints: ^5.0.0

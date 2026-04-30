@@ -12,11 +12,14 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final emailController = TextEditingController(text: 'guru@kelasku.id');
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  bool _obscure = true;
 
   @override
   void dispose() {
     emailController.dispose();
+    passwordController.dispose();
     super.dispose();
   }
 
@@ -41,7 +44,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         height: 56,
                         width: 56,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(18),
                         ),
                         child: Icon(
@@ -52,55 +58,82 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       const SizedBox(height: 20),
                       Text(
                         'Selamat datang di KelasKu',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w800),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Masuk sebagai admin, guru, atau siswa. Akun baru wajib menunggu persetujuan wakil kelas.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54),
+                        'Masuk sebagai admin, guru, atau siswa.',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: Colors.black54),
                       ),
                       const SizedBox(height: 20),
                       TextField(
                         controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
                         decoration: const InputDecoration(
-                          labelText: 'Username / Email',
-                          prefixIcon: Icon(Icons.person_outline),
+                          labelText: 'Email',
+                          prefixIcon: Icon(Icons.email_outlined),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: passwordController,
+                        obscureText: _obscure,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(_obscure
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined),
+                            onPressed: () =>
+                                setState(() => _obscure = !_obscure),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
-                      FilledButton(
-                        onPressed: () {
-                          final ok = ref.read(authControllerProvider).login(emailController.text);
-                          if (!ok && mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(auth.errorMessage ?? 'Login gagal')),
-                            );
-                          }
-                        },
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(54),
+                      if (auth.isLoading)
+                        const Center(child: CircularProgressIndicator())
+                      else
+                        FilledButton(
+                          onPressed: () async {
+                            final ok = await ref
+                                .read(authControllerProvider)
+                                .login(
+                                  emailController.text,
+                                  passwordController.text,
+                                );
+                            if (!ok && mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    auth.errorMessage ?? 'Login gagal',
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(54),
+                          ),
+                          child: const Text('Login'),
                         ),
-                        child: const Text('Login'),
-                      ),
                       const SizedBox(height: 12),
                       OutlinedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const RegisterPage()),
-                          );
-                        },
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const RegisterPage()),
+                        ),
                         style: OutlinedButton.styleFrom(
                           minimumSize: const Size.fromHeight(54),
                         ),
                         child: const Text('Register'),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Demo cepat: admin@kelasku.id · guru@kelasku.id · siswa@kelasku.id',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black45),
                       ),
                     ],
                   ),

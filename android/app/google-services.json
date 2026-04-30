@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "504426124982",
+    "project_id": "kelas-ku-app",
+    "storage_bucket": "kelas-ku-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:504426124982:android:87fb792a3853b592e3b817",
+        "android_client_info": {
+          "package_name": "com.example.test_prompt"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnZ2BuLeX09teSxSjMUW8i4UE5NcSoTs8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

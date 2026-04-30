@@ -54,6 +54,32 @@ class AppUser {
       needsTeacherProfile: needsTeacherProfile ?? this.needsTeacherProfile,
     );
   }
+  factory AppUser.fromFirestore(Map<String, dynamic> data, String id) {
+  return AppUser(
+    id: id,
+    name: data['name'] ?? '',
+    username: data['username'] ?? '',
+    email: data['email'] ?? '',
+    role: UserRole.values.firstWhere(
+      (r) => r.name == data['role'],
+      orElse: () => UserRole.pending,
+    ),
+    classId: data['classId'] ?? '',
+    subject: data['subject'],
+    nickname: data['nickname'],
+    needsTeacherProfile: data['needsTeacherProfile'] ?? false,
+  );
+}
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'username': username,
+    'email': email,
+    'role': role.name,
+    'classId': classId,
+    'subject': subject,
+    'nickname': nickname,
+    'needsTeacherProfile': needsTeacherProfile,
+  };
 }
 
 class TaskItem {
@@ -90,6 +116,23 @@ class TaskItem {
       isCompleted: isCompleted ?? this.isCompleted,
     );
   }
+  factory TaskItem.fromFirestore(Map<String, dynamic> data, String id) {
+  return TaskItem(
+    id: id,
+    title: data['title'] ?? '',
+    subject: data['subject'] ?? '',
+    note: data['note'],
+    deadline: DateTime.fromMillisecondsSinceEpoch(data['deadline']),
+    isCompleted: data['isCompleted'] ?? false,
+  );
+}
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'subject': subject,
+    'note': note,
+    'deadline': deadline.millisecondsSinceEpoch,
+    'isCompleted': isCompleted,
+  };
 }
 
 class ScheduleEntry {
@@ -114,6 +157,18 @@ class ScheduleEntry {
       teacherEmail: teacherEmail ?? this.teacherEmail,
     );
   }
+  factory ScheduleEntry.fromMap(Map<String, dynamic> data) {
+  return ScheduleEntry(
+    subject: data['subject'] ?? '',
+    teacherName: data['teacherName'] ?? '',
+    teacherEmail: data['teacherEmail'] ?? '',
+  );
+}
+  Map<String, dynamic> toMap() => {
+    'subject': subject,
+    'teacherName': teacherName,
+    'teacherEmail': teacherEmail,
+  };
 }
 
 class ScheduleSlot {
@@ -142,6 +197,24 @@ class ScheduleSlot {
       entries: entries ?? this.entries,
     );
   }
+  factory ScheduleSlot.fromMap(Map<String, dynamic> data) {
+  final entriesRaw = data['entries'] as List<dynamic>? ?? [];
+  return ScheduleSlot(
+    start: data['start'] ?? '',
+    end: data['end'] ?? '',
+    isBreak: data['isBreak'] ?? false,
+    entries: entriesRaw
+        .map((e) => ScheduleEntry.fromMap(Map<String, dynamic>.from(e)))
+        .toList(),
+  );
+}
+
+  Map<String, dynamic> toMap() => {
+    'start': start,
+    'end': end,
+    'isBreak': isBreak,
+    'entries': entries.map((e) => e.toMap()).toList(),
+  };
 }
 
 class SchoolPhase {
@@ -170,6 +243,21 @@ class SchoolPhase {
       end: end ?? this.end,
     );
   }
+  factory SchoolPhase.fromMap(Map<String, dynamic> data) {
+  return SchoolPhase(
+    id: data['id'] ?? '',
+    label: data['label'] ?? '',
+    start: data['start'] ?? '',
+    end: data['end'] ?? '',
+  );
+}
+
+  Map<String, dynamic> toMap() => {
+    'id': id,
+    'label': label,
+    'start': start,
+    'end': end,
+  };
 }
 
 class SchoolSettings {
@@ -194,6 +282,22 @@ class SchoolSettings {
       phases: phases ?? this.phases,
     );
   }
+  factory SchoolSettings.fromFirestore(Map<String, dynamic> data) {
+  final phasesRaw = data['phases'] as List<dynamic>? ?? [];
+  return SchoolSettings(
+    schoolName: data['schoolName'] ?? '',
+    className: data['className'] ?? '',
+    phases: phasesRaw
+        .map((p) => SchoolPhase.fromMap(Map<String, dynamic>.from(p)))
+        .toList(),
+  );
+}
+
+  Map<String, dynamic> toJson() => {
+    'schoolName': schoolName,
+    'className': className,
+    'phases': phases.map((p) => p.toMap()).toList(),
+  };
 }
 
 class AttendanceRecord {
@@ -214,4 +318,18 @@ class AttendanceRecord {
       status: status ?? this.status,
     );
   }
+  factory AttendanceRecord.fromMap(Map<String, dynamic> data) {
+  return AttendanceRecord(
+    teacherEmail: data['teacherEmail'] ?? '',
+    status: AttendanceStatus.values.firstWhere(
+      (s) => s.name == data['status'],
+      orElse: () => AttendanceStatus.unchecked,
+    ),
+  );
+}
+
+  Map<String, dynamic> toMap() => {
+    'teacherEmail': teacherEmail,
+    'status': status.name,
+  };
 }
