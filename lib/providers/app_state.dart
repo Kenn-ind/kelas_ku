@@ -205,6 +205,48 @@ class AppState extends ChangeNotifier {
       notifyListeners();
     }
   }
+  
+  Future<void> addOrUpdateScheduleSlot({
+  required String day,
+  required String phaseId,
+  required String subject,
+  required String teacherName,
+  required String teacherEmail,
+}) async {
+  // Ambil phase yang dipilih
+  final phase = settings.phases.firstWhere((p) => p.id == phaseId);
+  
+  final entry = ScheduleEntry(
+    subject: subject,
+    teacherName: teacherName,
+    teacherEmail: teacherEmail,
+  );
+
+  final slot = ScheduleSlot(
+    start: phase.start,
+    end: phase.end,
+    isBreak: false,
+    entries: [entry],
+  );
+
+  // Cari apakah slot dengan waktu ini sudah ada
+  final slots = List<ScheduleSlot>.from(_schedule[day] ?? []);
+  final existingIndex = slots.indexWhere(
+    (s) => s.start == phase.start && s.end == phase.end,
+  );
+
+  if (existingIndex != -1) {
+    slots[existingIndex] = slot; // update
+  } else {
+    slots.add(slot); // tambah baru
+    // Sort berdasarkan waktu mulai
+    slots.sort((a, b) => a.start.compareTo(b.start));
+  }
+
+  _schedule[day] = slots;
+  await _saveScheduleDay(day);
+  notifyListeners();
+}
 
   // ─── TASKS ─────────────────────────────────────────────────────────────────
 
