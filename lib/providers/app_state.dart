@@ -67,25 +67,22 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> _loadUsers() async {
-    final snap = await _db
-        .collection('users')
-        .where('classId', isEqualTo: _classId)
-        .get();
-    _users = snap.docs
-        .map((d) => AppUser.fromFirestore(d.data(), d.id))
-        .toList();
-  }
+  final snap = await _db
+      .collection('users')
+      .get(); // hapus .where
+  _users = snap.docs
+      .map((d) => AppUser.fromFirestore(d.data(), d.id))
+      .toList();
+}
 
   Future<void> _loadTasks() async {
-    final snap = await _db
-        .collection('tasks')
-        .where('classId', isEqualTo: _classId)
-        .orderBy('createdAt', descending: true)
-        .get();
-    _tasks = snap.docs
-        .map((d) => TaskItem.fromFirestore(d.data(), d.id))
-        .toList();
-  }
+  final snap = await _db
+      .collection('tasks')
+      .get(); // hapus .where dan .orderBy
+  _tasks = snap.docs
+      .map((d) => TaskItem.fromFirestore(d.data(), d.id))
+      .toList();
+}
 
   Future<void> _loadSchedule() async {
     final snap = await _db
@@ -107,14 +104,13 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> _loadAttendance() async {
-    final today = _dateKey(DateTime.now());
-    final snap = await _db
-        .collection('attendance')
-        .where('classId', isEqualTo: _classId)
-        .where('date', isEqualTo: today)
-        .get();
-    _attendance = {};
-    for (final doc in snap.docs) {
+  final today = _dateKey(DateTime.now());
+  final snap = await _db
+      .collection('attendance')
+      .get(); // hapus .where
+  _attendance = {};
+  for (final doc in snap.docs) {
+    if (doc.data()['date'] == today) {
       final email = doc.data()['teacherEmail'] as String;
       final status = AttendanceStatus.values.firstWhere(
         (s) => s.name == doc.data()['status'],
@@ -123,6 +119,7 @@ class AppState extends ChangeNotifier {
       _attendance[email] = status;
     }
   }
+}
 
   // ─── GETTERS ───────────────────────────────────────────────────────────────
 
