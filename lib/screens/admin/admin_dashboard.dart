@@ -29,6 +29,11 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         title: const Text('Dashboard Admin'),
         actions: [
           IconButton(
+            onPressed: () => ref.read(appStateProvider).init(),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh data',
+          ),
+          IconButton(
             onPressed: () => ref.read(authControllerProvider).logout(),
             icon: const Icon(Icons.logout_rounded),
             tooltip: 'Logout',
